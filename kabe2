@@ -12,6 +12,10 @@ public class DungeonManager : MonoBehaviour
     [SerializeField]
     private GameObject wall;
 
+    [Header("プレイヤーのオブジェクト - Player Object -")]
+    [SerializeField]
+    private GameObject player;
+
     [Header("敵のオブジェクト - Enemy Object -")]
     [SerializeField]
     private GameObject enemy;
@@ -19,6 +23,10 @@ public class DungeonManager : MonoBehaviour
     [Header("アイテムのオブジェクト - Item Object -")]
     [SerializeField]
     private GameObject item;
+
+    [Header("ゴールのオブジェクト - Goal Object -")]
+    [SerializeField]
+    private GameObject goal;
 
 
     [Header("マップ全体の大きさ")]
@@ -44,7 +52,7 @@ public class DungeonManager : MonoBehaviour
 
 
     [HideInInspector]
-    public int[,] Map;     //マップ情報
+    public static int[,] Map;     //マップ情報
 
     [Header("あくまで目安です！最小値を下回る場合もございます！!")]
     [Header("部屋の数 Min,Max（最小,最大）-- Number of rooms Min, Max --")]
@@ -63,9 +71,6 @@ public class DungeonManager : MonoBehaviour
     int roomMinSize = 6;
 
     List<SpritRoomInfomation> roomSprit = new List<SpritRoomInfomation>();
-
-
-
 
 
     private void Start()
@@ -580,6 +585,8 @@ public class DungeonManager : MonoBehaviour
     {
       GameObject obj;
 
+      bool flag_player = false;
+      bool flag_goal = false;
       int now_enemy = 0;
       int now_item = 0;
 
@@ -588,41 +595,60 @@ public class DungeonManager : MonoBehaviour
         for (int j = 0; j < MapHeight; j++)
         {
           // 床を敷き詰める
-          obj = Instantiate(floor, new Vector3(i - MapWidth / 2, 0, j - MapHeight / 2), Quaternion.identity);
+          //obj = Instantiate(floor, new Vector3(i - MapWidth / 2, 0, j - MapHeight / 2), Quaternion.identity);
+          obj = Instantiate(floor, new Vector3(i, 0, j), Quaternion.identity);
           obj.transform.parent = transform;
           // 壁だった場合壁にする
           if (Map[i, j] == Roguelike3DGroval.wallID)
           {
             for (int height = 0; height < WallHeght; height++)
             {
-              obj = Instantiate(wall, new Vector3(i - MapWidth / 2, height + 1, j - MapHeight / 2), Quaternion.identity);
+              //obj = Instantiate(wall, new Vector3(i - MapWidth / 2, height + 1, j - MapHeight / 2), Quaternion.identity);
+              obj = Instantiate(wall, new Vector3(i, height + 1, j), Quaternion.identity);
               obj.transform.parent = transform;
             }
           }
         }
       }
 
-      //敵とアイテムを生成し終えるまで
+      //敵やアイテムなどを生成し終えるまで
       while (now_enemy != max_enemy)
       {
-        //ランダムな数字xxx,yyyを生成して、その座標が壁じゃないならアイテムか敵を生成
+        //ランダムな数字xxx,yyyを生成して、その座標が壁じゃないならプレイヤーやアイテムなどを生成
         int xxx = Random.Range(0, MapWidth);
         int yyy = Random.Range(0, MapHeight);
         if (Map[xxx, yyy] != Roguelike3DGroval.wallID)
         {
-          if (now_item < max_item)
+          if (flag_player == false)
           {
-            obj = Instantiate(item, new Vector3(xxx - MapWidth / 2, 1, yyy - MapHeight / 2), Quaternion.identity);
+            obj = Instantiate(player, new Vector3(xxx, 1, yyy), Quaternion.identity);   //プレイヤーの生成
+            obj.transform.parent = transform;
+            flag_player = true;
+          }
+          else if (flag_goal == false)
+          {
+            obj = Instantiate(goal, new Vector3(xxx, 1, yyy), Quaternion.identity);     //ゴールの生成
+            obj.transform.parent = transform;
+            flag_goal = true;
+          }
+          else if (now_item < max_item)
+          {
+            obj = Instantiate(item, new Vector3(xxx, 1, yyy), Quaternion.identity);     //アイテムの生成
             obj.transform.parent = transform;
             now_item += 1;
           }else{
-            obj = Instantiate(enemy, new Vector3(xxx - MapWidth / 2, 1, yyy - MapHeight / 2), Quaternion.identity);
+            obj = Instantiate(enemy, new Vector3(xxx, 1, yyy), Quaternion.identity);    //敵の生成
             obj.transform.parent = transform;
             now_enemy += 1;
           }
         }
       }
 
+    }
+
+    //マップ情報の呼び出し
+    public static int[,] GetMap(){
+        return Map;
     }
 
 }

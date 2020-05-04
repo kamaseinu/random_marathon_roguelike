@@ -4,36 +4,37 @@ using UnityEngine;
 
 public class PlayerContoroller : MonoBehaviour{
 
-    private Vector3 velocity;              // 移動方向
-    private float moveSpeed = 5.0f;        // 移動速度
-    Animator animator;
+  int[,] map;
 
     void Start(){
+
+      //マップ情報を取得
+      map = DungeonManager.GetMap();
 
     }
 
     void Update(){
 
-      // transformを取得
-      Transform myTransform = this.transform;
-
       // 座標を取得
+      Transform myTransform = this.transform;
       Vector3 pos = myTransform.position;
 
       if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)){
-          pos.z += 1.0f;
+          if (map[(int)pos.x, (int)pos.z + 1] != 0) pos.z += 1.0f;
       }
       if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)){
-          pos.x -= 1.0f;
+        if (map[(int)pos.x - 1, (int)pos.z] != 0) pos.x -= 1.0f;
       }
       if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)){
-          pos.z -= 1.0f;
+        if (map[(int)pos.x, (int)pos.z - 1] != 0) pos.z -= 1.0f;
       }
       if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)){
-          pos.x += 1.0f;
+        if (map[(int)pos.x + 1, (int)pos.z] != 0) pos.x += 1.0f;
       }
 
-
       myTransform.position = pos;  // 座標を設定
+
+
     }
+
 }
